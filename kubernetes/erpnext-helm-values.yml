@@ -16,7 +16,7 @@ externalDatabase:
 erpnext:
   image:
     repository: frappe/erpnext
-    tag: "version-14"
+    tag: "version-15"
   
   replicas: 2
   
