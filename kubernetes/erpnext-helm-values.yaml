@@ -1,0 +1,78 @@
+# ERPNext Helm Values
+
+# Disable built-in MariaDB - we're using external RDS
+mariadb:
+  enabled: false
+
+# External Database Configuration
+externalDatabase:
+  host: "${rds_endpoint}"
+  port: 3306
+  database: "${database_name}"
+  user: "${database_username}"
+  passwordSecret: "${project_name}-db-secret"
+
+# ERPNext Configuration
+erpnext:
+  image:
+    repository: frappe/erpnext
+    tag: "version-14"
+  
+  replicas: 2
+  
+  sites:
+    default:
+      siteName: "erpnext.local"
+      sites:
+        erpnext.local:
+          adminPassword: "admin123"
+          dbHost: "${rds_endpoint}"
+          dbPort: 3306
+          dbName: "${database_name}"
+          dbPassword: "${database_password}"
+
+# Persistence
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: "ebs-sc"
+  accessMode: ReadWriteOnce
+
+# Redis
+redis:
+  enabled: true
+  architecture: standalone
+  
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClass: "ebs-sc"
+
+# Nginx Ingress
+nginx:
+  enabled: true
+  
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "external"
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+      service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+
+# Backup Configuration
+backup:
+  enabled: true
+  s3:
+    bucket: "${s3_bucket_name}"
+    endpoint: "s3.${aws_region}.amazonaws.com"
+    region: "${aws_region}"
+
+# Resource Limits (adjusted for t3.micro)
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "250m"

@@ -18,5 +18,5 @@ Deploy ERPNext to AWS EKS with external RDS MariaDB using Terraform.
 4. Deploy: `terraform init && terraform apply`
 
 ## Variables
-
+   
 See `variables.tf` for all configurable options including subnet CIDR blocks.
